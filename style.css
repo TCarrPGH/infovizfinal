@@ -1,0 +1,20 @@
+#slider { 
+margin: 10px; 
+}
+#slider label {
+  position: absolute;
+  width: 20px;
+  margin-top: 20px;
+  margin-left: -10px;
+  text-align: center;
+}
+
+body {
+  font-family: "Exo 2", "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: 1.2em;
+  line-height: 1.2em;
+  background: #FDF6E3;
+  color: #475B62;
+}
+ 

@@ -1,0 +1,66 @@
+********************************************************
+*                                                       *
+*   Step1: Create the dc.js chart objects & ling to div *
+*                                                       *
+********************************************************/
+//var bubbleChart = dc.bubbleChart("#dc-bubble-graph");
+//var volumeChart = dc.barChart("#dc-volume-chart");
+//var lineChart = dc.lineChart("#dc-line-chart");
+//var datatable   = dc.dataTable("#dc-data-table");
+//var rowChart = dc.rowChart("#dc-row-graph");
+//var map =dc.geoChoroplethChart('#us-chart');
+var stateInfectionTimeline = dc.lineChart("#state-infectionTimeline");
+
+/********************************************************
+*                                                       *
+*   Step2:  Run data through crossfilter                *
+*                                                       *
+********************************************************/
+var ndx = crossfilter(data); 
+var parseDate = d3.time.format("%m/%d/%Y").parse;
+for(name of data.states(function(d) {
+	d.date = parseDate(d.date); //Line Chart?>x-axis: Date
+	//d.total= d.http_404+d.http_200+d.http_302; //Line Chart?>y-axis: Hits 
+	d.Year=d.date.getFullYear(); //Pie Chart?> Year
+var nameDim= ndx.dimension(function(d) { return d.states.name[1]; });
+console.log(d.states.name);
+var stateAbr = ndx.dimension(function(d) { return d.abbreviation; });
+var yearDimension = ndx.dimension(function(d) { return d.year; });
+var totalInfections = ndx.dimension(function(d) { return d.infection; });
+ });
+var stateNames = nameDim.group();
+var stateAbrGroup = stateAbr.group();
+var infectionsByYear= yearDimension;
+var infectionsByState = totalInfections.group();
+
+//calculate groups
+var totalInfectionsState = nameDim.group().reduceSum(function(d) {
+return d.totalInfections;
+
+});
+jQuery.isEmptyObject({totalInfectionsState});
+//var minDate = yearDimension.bottom(1)[0].year;
+//var maxDate = yearDimension.top(1)[0].year;
+
+
+ 
+/********************************************************
+*                                                       *
+*   Charts             									*
+*                                                       *
+********************************************************/
+
+stateInfectionTimeline
+//.width(600)
+.height(220)
+.margins({top: 10, right: 50, bottom: 30, left: 50})
+.dimension(stateAbr)
+.group(infectionsByYear)
+.renderArea(true)
+.transitionDuration(500)
+//.x(d3.time.scale().domain([minDate, maxDate]))
+.elasticY(true)
+.renderHorizontalGridLines(true)
+.renderVerticalGridLines(true)
+.xAxisLabel("Year")
+.yAxis().ticks(6);
