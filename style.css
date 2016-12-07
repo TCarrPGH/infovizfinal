@@ -1,20 +1,45 @@
 #slider { 
-margin: 10px; 
+margin-left: 160px; 
 }
-#slider label {
-  position: absolute;
-  width: 20px;
-  margin-top: 20px;
-  margin-left: -10px;
-  text-align: center;
+
+
+}
+start-year{
+margin-left: 150px;	
+font-size: 20px;
 }
 
 body {
   font-family: "Exo 2", "Helvetica Neue", Helvetica, sans-serif;
-  font-weight: 300;
-  font-size: 1.2em;
-  line-height: 1.2em;
-  background: #FDF6E3;
-  color: #475B62;
+  margin-left: 80px;
+  margin-right: 80px;
+  font-size: 20px;
 }
- 
+reset{
+	position: center;
+}
+container{
+	margin-left: 15px;
+	padding-left: 15px;
+}
+
+}
+p{
+	font-size: 10;
+}
+
+
+.dc-table-group{display:none}
+
+h1{
+	text-align:center;
+}
+h2{	
+	text-align:center;
+}
+h3{	
+	text-align:center;
+}
+h4{	
+	text-align:center;
+}

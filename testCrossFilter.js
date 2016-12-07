@@ -5,6 +5,9 @@ d3.json('infections.json', function(data) {
 	var flattenedData = [];
 	var parseYear = d3.time.format("%Y").parse;
 	for(var state of data.states){
+		if (!state.name) {
+			console.log('wtf');
+		}
 		for(var stateData of state.stateData){ //
 			flattenedData.push({
 				"stateName": state.name ,
@@ -45,17 +48,18 @@ d3.json('infections.json', function(data) {
 	//## change slider score value to re-assign the data in pie chart
   
 	//filter domain to infection rate
-	var topInfectionValue = stateRaisedSum.top(Infinity);
-	var minInfection = topInfectionValue[0].value;
-	var maxInfection = topInfectionValue[49].value;
+	var topInfectionValue = stateRaisedSum.top(1);
+	var maxInfection = topInfectionValue[0].value;
+	//var minInfection = topInfectionValue[49].value;
 	
 
-	usChartColorScale = d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]).domain([minInfection, maxInfection]);
+	
+	usChartColorScale = d3.scale.quantize().range([ "#859574",  "#FFC300", "#DF6146", "#C70039","#900C3F"]).domain([0, maxInfection]);
+	usChartColorScale(0)
 	d3.json("geo/us-states.json", function (statesJson) {
 		usChart
 			.width(960)
 			.height(500)
-		  
 		  .dimension(stateAbrDim)
 		  .group( stateRaisedSum)
 		  .colors(usChartColorScale)
@@ -69,52 +73,63 @@ d3.json('infections.json', function(data) {
 
 		//create line Chart---------------------------------------------------------->	
 		hitslineChart
-			.width(400).height(200)
+			.width(600).height(400)
 			.dimension(dateDim)  
 			.group(infectionDimGroup)
-			
+			.mouseZoomable(true)
+			.round(d3.time.format("%Y").parse.round)
 			.x(d3.time.scale().domain([minDate,maxDate]))
 			.renderArea(true)
 			.brushOn(false)
-			.legend(dc.legend().x(420).y(10).itemHeight(13).gap(5))
+			.elasticY(true)
+			.colors(usChartColorScale)
+			.transitionDuration(1000)
+			.margins({top: 10, right: 100, bottom: 70, left:90})
+			//.legend(dc.legend().x(420).y(10).itemHeight(13).gap(5))
 			.yAxisLabel("Infection Rate")
-			  .select("g.axis.y")
-				.attr("transform", "translate(71, 0)");
+			.xAxisLabel("Year")
+			  
+		
 
 			//barchart---
 		chart
-          .width(920)
-          .height(175)
+          .width(1200)
+          .height(250)
           .x(d3.scale.ordinal())
           .xUnits(dc.units.ordinal)
           .brushOn(false)
-          .xAxisLabel('Fruit')
+          .xAxisLabel('State')
 		  .y(d3.scale.linear().domain([0, 22000]))
-          .yAxisLabel('Quantity Sold')
+          .yAxisLabel('# of Infections')
+		  .elasticY(true)
+		   .colors(usChartColorScale)
           .dimension(stateAbrDim)
 			.gap(2)
 		  .renderHorizontalGridLines(true)
+		   //.round(dc.round.floor) //changes y axis to scale with infection rate
+			.margins({top: 10, right: 100, bottom: 70, left:80})
           .group(stateRaisedSum);
-			
 		
 		
 		
-		//create data table---------------------------------------------------------->
-		var datatable   = dc.dataTable("#dc-data-table");
+		var datatable = dc.dataTable("#dc-data-table");
 		datatable
-		.width(400).height(100)
-		.dimension(stateDim)
-		.group(function(d) {return d.dateDim;})
+		.width(400).height(200)
+		.size(5)
+		.order(d3.ascending)
+		.dimension(infectionDim)
+				  .sortBy(function (d) {
+            return d.infection.ascending;
+        })
+		.group(function() {return "State Name";})
 		// dynamic columns creation using an array of closures
 		.columns([
-			
 			function(d) {return d.stateName;},
 			function(d) {return d.infection;},
-			function(d) {return d3.time.format("%Y")(d.date);},       
-			
+			function(d) {return d3.time.format("%Y")(d.date);},
 		]);
 		
-		
+	
 		
 		
 
@@ -122,14 +137,18 @@ d3.json('infections.json', function(data) {
 		//slider
 		$("#slider").change(function(ev) {
 			var year = $(this).val();
-			
+			if (year >=1956 && year <=1973){//changes slider value to 1974 for the years that don't contain data
+				year ="1974";
+				$(this).val(1974);
+				
+			}
 			$("#start-year").text(year);
 			dateDim.filter(parseYear(year));
-			var topInfectionValue = stateRaisedSum.top(Infinity);
-			var minInfection = topInfectionValue[0].value;
-			var maxInfection = topInfectionValue[49].value;
+			var topInfectionValue = stateRaisedSum.top(1);
+			var maxInfection = topInfectionValue[0].value;
+			//var minInfection = topInfectionValue[49].value;
 	
-			usChartColorScale.domain([minInfection, maxInfection]);
+			usChartColorScale.domain([0, maxInfection]);
 			
 			dc.redrawAll();
 		});
